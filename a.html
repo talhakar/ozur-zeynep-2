@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Özür Dilerim 💙</title>
+  <style>
+    :root{
+      --accent:#6c5ce7; /* vurgu rengi */
+      --bg1:#0f1226;    /* arka plan gradyanı 1 */
+      --bg2:#1b1f3a;    /* arka plan gradyanı 2 */
+      --text:#f5f7ff;   /* ana metin rengi */
+      --muted:#c9cbea;  /* soluk metin */
+      --tile-bg:rgba(15,18,38,.35); /* parça üstü cam etkisi */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 700px at 20% 10%, var(--bg2), var(--bg1));
+      color:var(--text);
+      display:grid;place-items:center;
+    }
+    .wrap{width:min(1000px,92vw);}
+    .card{
+      position:relative; overflow:hidden; border-radius:24px; padding:18px;
+      background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: 0 20px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(6px);
+    }
+
+    .header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 6px 12px}
+    .title{font-weight:800; letter-spacing:.3px; font-size: clamp(20px, 2.4vw, 28px)}
+    .muted{color:var(--muted); font-size:14px}
+    .controls{display:flex; gap:8px; flex-wrap:wrap}
+    button{
+      appearance:none; border:none; cursor:pointer; border-radius:999px; padding:10px 14px; font-weight:700;
+      background:linear-gradient(180deg, #7c6cff, #5b47ff); color:white; box-shadow:0 8px 20px rgba(92,72,255,.35);
+    }
+    button.secondary{background: rgba(255,255,255,.08); color:var(--text); box-shadow:none}
+    button:disabled{opacity:.5; cursor:not-allowed}
+
+    .stage{position:relative; width:100%; aspect-ratio: 16/10; border-radius:18px; overflow:hidden;}
+
+    /* Arka plan resmi */
+    .photo-bg{
+      position:absolute; inset:0; background-size:cover; background-position:center; filter: blur(12px) saturate(1.15) brightness(.85);
+      transform: scale(1.05); opacity:.7;
+    }
+    /* Net fotoğraf */
+    .photo{
+      position:absolute; inset:18px; background-size:cover; background-position:center; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.4);
+    }
+
+    /* Parça ızgarası */
+    .tiles{
+      position:absolute; inset:18px; display:grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), 1fr);
+      gap:10px; z-index:3;
+    }
+    .tile{
+      position:relative; border-radius:14px; overflow:hidden; background: var(--tile-bg);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 20px rgba(0,0,0,.25);
+      transform: scale(.96); opacity:0;
+      transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .6s;
+    }
+    .tile.visible{opacity:1; transform: scale(1)}
+
+    /* Parça üstü yazı */
+    .tile .line{
+      position:absolute; inset:auto 10px 12px 10px; text-align:center; font-weight:800; font-size: clamp(14px, 2vw, 20px);
+      color:var(--text); text-shadow:0 2px 8px rgba(0,0,0,.5);
+      opacity:0; transform: translateY(8px); transition: .45s ease;
+    }
+    .tile.visible .line{opacity:1; transform: none}
+
+    /* Final ekranı */
+    .final{
+      position:absolute; inset:0; display:grid; place-items:center; z-index:4;
+      background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.55));
+      opacity:0; pointer-events:none; transition: opacity .8s ease;
+    }
+    .final.show{opacity:1; pointer-events:auto}
+    .final h1{font-size: clamp(32px, 6vw, 72px); margin:0; line-height:1.05; letter-spacing:.5px}
+    .final p{margin:12px 0 18px; color:var(--muted)}
+    .pulse{
+      position:absolute; inset:auto auto 20px 20px; width:12px; height:12px; border-radius:999px; background: var(--accent);
+      box-shadow: 0 0 0 0 rgba(108,92,231,.6); animation: pulse 2.2s infinite;
+    }
+    @keyframes pulse{to{box-shadow:0 0 0 26px rgba(108,92,231,0)}}
+
+    /* Kalp konfeti (basit) */
+    .hearts{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+    .heart{position:absolute; font-size:18px; opacity:.9; animation: floatUp 2.8s ease-in forwards}
+    @keyframes floatUp{from{transform:translateY(40px) scale(.9)} to{transform: translateY(-120%) scale(1.2); opacity:0}}
+
+    /* Alt açıklama */
+    .foot{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px}
+    .hint{font-size:12px; color:var(--muted)}
+    .credit{font-size:12px; opacity:.6}
+
+    /* Küçük ekran iyileştirme */
+    @media (max-width:520px){
+      .tiles{gap:6px}
+      .photo{inset:12px}
+      .stage{aspect-ratio: 4/5}
+    }
+  </style>
+</head>
+<body>
+  <!--
+    🔧 KOLAYCA ÖZELLEŞTİR (tek dosya):
+    1) Aşağıdaki CONFIG bölümünde 'IMAGE_URL'i kendi fotoğraf linkinle değiştir.
+    2) 'LINES' dizisindeki yazıları ilişki/özre göre düzenle (adet = parça sayısı).
+    3) ROWS ve COLS ile parça sayısını belirle (örn. 3x4 = 12 parça).
+    4) AUTO_INTERVAL ile otomatik açılma hızını ayarla (ms). 0 yaparsan sadece butonla ilerler.
+  -->
+
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div>
+          <div class="title">Parça Parça Açılan Mesaj</div>
+        </div>
+        <div class="controls">
+          <button id="play">Başlat</button>
+          <button id="next" class="secondary">Bir Sonraki Parça</button>
+          <button id="reset" class="secondary">Sıfırla</button>
+        </div>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="photo-bg" id="photoBg"></div>
+        <div class="photo" id="photo"></div>
+        <div class="tiles" id="tiles" style="--rows:3; --cols:4"></div>
+        <div class="final" id="final">
+          <div style="text-align:center">
+            <h1>Özür Dilerim</h1>
+            <p>Kalbini kırmak istemedim. Telafi etmek için buradayım.</p>
+            <button id="confetti">Kalpler Yağsın</button>
+          </div>
+          <div class="hearts" id="hearts"></div>
+        </div>
+        <div class="pulse" title="canlı"></div>
+      </div>
+      <div class="foot">
+        <div class="credit">❤ Senin için hazırlandı</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======== CONFIG ========
+    const IMAGE_URL = "https://i.imgur.com/gJtYQ60.png"; // kendi foto linkini koy
+    const ROWS = 3; // satır
+    const COLS = 4; // sütun
+    const AUTO_INTERVAL = 0; // ms (otomatik açılma hızı). 0 yaparsan otomatik akmaz
+
+    // Parça başına gösterilecek cümleler (adet = ROWS*COLS)
+    const LINES = [
+      "Bazen sözlerim aceleye geliyor…",
+      "Ve seni incitmek hiç niyetim olmuyor.",
+      "Kalbimi en çok seninle sevdim.",
+      "Hatalıyım, kabul ediyorum.",
+      "Beni sevdiğin için teşekkür ederim.",
+      "Sana daha iyi davranacağım.",
+      "Sabır gösterdiğin için minnettarım.",
+      "Paylaştığımız anlar benim için çok kıymetli.",
+      "Gülüşünü tekrar görmek istiyorum.",
+      "Sana değer veriyorum.",
+      "Telafi etmek için buradayım.",
+      "Her şey için..."
+    ];
+
+    // ======== UYGULAMA ========
+    const tilesEl = document.getElementById('tiles');
+    const photoEl = document.getElementById('photo');
+    const photoBgEl = document.getElementById('photoBg');
+    const finalEl = document.getElementById('final');
+    const heartsEl = document.getElementById('hearts');
+
+    const btnPlay = document.getElementById('play');
+    const btnNext = document.getElementById('next');
+    const btnReset = document.getElementById('reset');
+    const btnConfetti = document.getElementById('confetti');
+
+    // Görseli yerleştir
+    photoEl.style.backgroundImage = `url('${IMAGE_URL}')`;
+    photoBgEl.style.backgroundImage = `url('${IMAGE_URL}')`;
+
+    // Izgara kur
+    tilesEl.style.setProperty('--rows', ROWS);
+    tilesEl.style.setProperty('--cols', COLS);
+
+    // Parça oluştur
+    const total = ROWS * COLS;
+    if(LINES.length !== total){
+      console.warn(`[UYARI] LINES (${LINES.length}) ile parça sayısı (${total}) aynı değil. Eksik olanlar boş gösterilecek.`)
+    }
+
+    let tiles = [];
+    function buildTiles(){
+      tilesEl.innerHTML = '';
+      tiles = [];
+      for(let i=0;i<total;i++){
+        const div = document.createElement('div');
+        div.className = 'tile';
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.textContent = LINES[i] || '';
+        div.appendChild(line);
+        tilesEl.appendChild(div);
+        tiles.push(div);
+      }
+    }
+
+    buildTiles();
+
+    let idx = -1; // hangi parça açık
+    let timer = null;
+
+    function revealNext(){
+      if(idx >= total - 1){
+        showFinal();
+        return;
+      }
+      idx++;
+      tiles[idx].classList.add('visible');
+      // küçük pop efekti için
+      tiles[idx].animate([
+        { transform:'scale(.9)', opacity:.2 },
+        { transform:'scale(1)', opacity:1 }
+      ], { duration: 380, easing:'cubic-bezier(.2,.8,.2,1)' });
+
+      if(idx === total - 1){ // son parça açıldıysa ufak bekle ve final göster
+        setTimeout(showFinal, 500);
+      }
+    }
+
+    function showFinal(){
+      finalEl.classList.add('show');
+      stopAuto();
+      btnNext.disabled = true;
+    }
+
+    function resetAll(){
+      stopAuto();
+      idx = -1;
+      finalEl.classList.remove('show');
+      btnNext.disabled = false;
+      tiles.forEach(t=>t.classList.remove('visible'));
+    }
+
+    function startAuto(){
+      resetAll();
+      revealNext();
+      if(AUTO_INTERVAL > 0){
+        timer = setInterval(()=>{
+          revealNext();
+          if(idx >= total - 1){ stopAuto(); }
+        }, AUTO_INTERVAL);
+      }
+    }
+
+    function stopAuto(){
+      if(timer){ clearInterval(timer); timer = null; }
+    }
+
+    // Kalp konfeti
+    function spawnHearts(count=18){
+      const stage = document.getElementById('stage');
+      const rect = stage.getBoundingClientRect();
+      for(let i=0;i<count;i++){
+        const h = document.createElement('div');
+        h.className = 'heart';
+        h.textContent = '❤';
+        h.style.left = Math.random()*100 + '%';
+        h.style.bottom = (Math.random()*10) + '%';
+        h.style.fontSize = (14 + Math.random()*16) + 'px';
+        h.style.animationDelay = (Math.random()*0.7)+'s';
+        heartsEl.appendChild(h);
+        setTimeout(()=>{ h.remove(); }, 3000);
+      }
+    }
+
+    // Olaylar
+    btnPlay.addEventListener('click', startAuto);
+    btnNext.addEventListener('click', ()=>{
+      if(finalEl.classList.contains('show')) return;
+      revealNext();
+    });
+    btnReset.addEventListener('click', resetAll);
+    btnConfetti.addEventListener('click', ()=> spawnHearts(26));
+
+    // Küçük hoşluk: Space tuşu ile sonraki parça
+    window.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space'){ e.preventDefault(); btnNext.click(); }
+    });
+  </script>
+</body>
+</html>
